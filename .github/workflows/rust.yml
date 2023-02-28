@@ -1,4 +1,4 @@
-name: weathercli
+name: Rust
 
 on:
   push:
@@ -10,10 +10,37 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
-
+  rust-lint:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - run: rustup component add rustfmt
+      - run: cargo fmt -- --check
+      - run: |
+        rustup update
+        rustup component add clippy
+        clippy -- -D warnings
 
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      run: cargo build --verbose
+    - name: Run tests
+      run: cargo test --verbose
+
+  build-mac:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      run: cargo build --verbose
+    - name: Run tests
+      run: cargo test --verbose
+
+  build-windows:
+    runs-on: windows-2022
     steps:
     - uses: actions/checkout@v3
     - name: Build
