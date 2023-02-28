@@ -16,14 +16,14 @@ use crate::services::weather_service::{ForecastStrategy, ForecastResponseData };
 pub struct WeatherApiStrategy;
 
 impl ForecastStrategy for WeatherApiStrategy {
-    fn build_request(&self, address: String, date: String) -> Result<String, &'static str> {
+    fn build_request(&self, address: &str, date: &str) -> Result<&str, &'static str> {
         let weatherapi_api_key: &'static str = env!("WEATHERAPI_API_KEY");
 
         println!("Results for WeatherApi");
-        Ok("ok".to_string())
+        Ok("ok")
     }
 
-    fn build_response(&self, request_result: String) ->  Result<ForecastResponseData, &'static str> {
+    fn build_response(&self, request_result: &str) ->  Result<ForecastResponseData, &'static str> {
         println!("Results for WeatherApi");
         Ok(ForecastResponseData { data: "ok".to_string() })
     }

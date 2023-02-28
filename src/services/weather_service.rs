@@ -20,7 +20,7 @@ fn render_forecast_data(response_data: Result<ForecastResponseData, &'static str
     };
 }
 
-pub fn weather_forecast(address: String, date: String) {
+pub fn weather_forecast(address: &str, date: &str) {
     let response_data = match config::get_provider() {
         WeatherService::OpenWeather => WeatherForecastData::new(OpenWeatherStrategy).get_forecast(address, date),
         WeatherService::WeatherApi => WeatherForecastData::new(WeatherApiStrategy).get_forecast(address, date),
@@ -31,9 +31,9 @@ pub fn weather_forecast(address: String, date: String) {
 }
 
 pub trait ForecastStrategy {
-    fn build_request(&self, address: String, date: String) -> Result<String, &'static str>;
+    fn build_request(&self, address: &str, date: &str) -> Result<&str, &'static str>;
 
-    fn build_response(&self, request_result: String) -> Result<ForecastResponseData, &'static str>;
+    fn build_response(&self, request_result: &str) -> Result<ForecastResponseData, &'static str>;
 }
 
 struct WeatherForecastData<T: ForecastStrategy> {
@@ -45,14 +45,19 @@ impl<T: ForecastStrategy> WeatherForecastData<T> {
         Self { forecast_strategy }
     }
 
-    fn get_forecast(&self, address: String, date: String) -> Result<ForecastResponseData, &'static str> {
-        let query = self.forecast_strategy.build_request(address, date).unwrap();
-        let results = self.request(query).unwrap();
+    fn get_forecast(&self, address: &str, date: &str) -> Result<ForecastResponseData, &'static str> {
+        let results = match self.forecast_strategy.build_request(address, date) {
+            Ok(query) => match self.request(query) {
+                Ok(result) => result,
+                Err(err) => return Err(err)
+            },
+            Err(error) => return Err(error)
+        };
         self.forecast_strategy.build_response(results)
     }
 
-    fn request(&self, query: String) -> Result<String, &'static str> {
-        Ok("some response".to_string())
+    fn request(&self, query: &str) -> Result<&str, &'static str> {
+        Ok("some response")
     }
 }
 pub struct ForecastResponseData {

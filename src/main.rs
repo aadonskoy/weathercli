@@ -36,7 +36,7 @@ fn main() {
     match &cli.com {
         SubCommand::Configure { provider } => utils::config::set_provider(provider),
         SubCommand::Get(GetArgs { address, options }) => match address {
-            Some(address) => weather_forecast(address.to_owned(), options.to_owned()),
+            Some(address) => weather_forecast(address, options),
             None => println!("Please set your location as 'city country code': get 'Kyiv UA'"),
         },
     };
