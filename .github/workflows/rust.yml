@@ -16,10 +16,8 @@ jobs:
       - uses: actions/checkout@v1
       - run: rustup component add rustfmt
       - run: cargo fmt -- --check
-      - run: |
-        rustup update
-        rustup component add clippy
-        clippy -- -D warnings
+      - run: rustup component add clippy
+      - run: clippy -- -D warnings
 
   build:
     runs-on: ubuntu-latest
