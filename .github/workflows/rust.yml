@@ -8,6 +8,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-Dwarnings"
   OPENWEATHER_API_KEY: ${{ vars.api_tokens.OPENWEATHER_API_KEY }}
   WEATHERAPI_API_KEY: ${{ vars.api_tokens.WEATHERAPI_API_KEY }}
 
@@ -19,7 +20,7 @@ jobs:
       - run: rustup component add rustfmt
       - run: cargo fmt -- --check
       - run: rustup component add clippy
-      - run: clippy -- -D warnings
+      - run: cargo clippy --all-targets --all-features
 
   build:
     runs-on: ubuntu-latest
