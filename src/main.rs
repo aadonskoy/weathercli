@@ -1,8 +1,8 @@
-mod utils;
 mod services;
+mod utils;
 
-use clap::{Args, Parser, Subcommand};
 use crate::services::weather_service::weather_forecast;
+use clap::{Args, Parser, Subcommand};
 
 #[derive(Parser, Debug)]
 #[command(author = "Oleksii Donskoi")]
@@ -15,10 +15,18 @@ struct Cli {
 
 #[derive(Subcommand, Debug)]
 enum SubCommand {
-    /// Configure app to use selected service. Please use: openweather, weatherapi, accuweather or aerisweather")
+    /// Configure app to use selected service.
+    /// Please use: openweather, weatherapi, accuweather or aerisweather")
+    /// Ex.:
+    /// weather configure openweather
     Configure { provider: Option<String> },
 
     /// Get weather by given address 'your address' or with date (dd-mm): get 'your address' date=21-02
+    /// Ex. for current day:
+    /// weather get 'Kyiv, UA'
+    ///
+    /// Ex. for selected day:
+    /// weather get 'Kyiv, UA' date=2023-02-25
     Get(GetArgs),
 }
 

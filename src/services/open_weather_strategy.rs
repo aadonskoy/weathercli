@@ -1,15 +1,18 @@
-use crate::services::weather_service::{ForecastStrategy, ForecastResponseData };
+use crate::services::weather_service::{ForecastResponseData, ForecastStrategy};
 pub struct OpenWeatherStrategy;
 
+// const API_KEY &str = env!("OPENWEATHER_API_KEY");
+
 impl ForecastStrategy for OpenWeatherStrategy {
-    fn build_request(&self, address: &str, date: &str) -> Result<&str, &'static str> {
-        let openweather_api_key: &'static str = env!("OPENWEATHER_API_KEY");
-        println!("Results for OpenWeather");
-        Ok("ok")
+    fn build_request(&self, address: &str, date: &str) -> Result<String, &'static str> {
+        println!("Results for OpenWeather {address} {date}");
+        Ok("ok".to_string())
     }
 
     fn build_response(&self, request_result: &str) -> Result<ForecastResponseData, &'static str> {
-        println!("Results for OpenWeather");
-        Ok(ForecastResponseData { data: "ok".to_string() })
+        println!("Results for OpenWeather {request_result}");
+        Ok(ForecastResponseData {
+            data: "ok".to_string(),
+        })
     }
 }

@@ -1,8 +1,7 @@
-use crate::utils::config;
 use crate::services::{
-    open_weather_strategy::OpenWeatherStrategy,
-    weatherapi_strategy::WeatherApiStrategy
+    open_weather_strategy::OpenWeatherStrategy, weatherapi_strategy::WeatherApiStrategy,
 };
+use crate::utils::config;
 
 pub enum WeatherService {
     OpenWeather,
@@ -16,14 +15,18 @@ pub enum WeatherService {
 fn render_forecast_data(response_data: Result<ForecastResponseData, &'static str>) {
     match response_data {
         Ok(response_data) => response_data.render(),
-        Err(error) => println!("Error: {error}")
+        Err(error) => println!("Error: {error}"),
     };
 }
 
 pub fn weather_forecast(address: &str, date: &str) {
     let response_data = match config::get_provider() {
-        WeatherService::OpenWeather => WeatherForecastData::new(OpenWeatherStrategy).get_forecast(address, date),
-        WeatherService::WeatherApi => WeatherForecastData::new(WeatherApiStrategy).get_forecast(address, date),
+        WeatherService::OpenWeather => {
+            WeatherForecastData::new(OpenWeatherStrategy).get_forecast(address, date)
+        }
+        WeatherService::WeatherApi => {
+            WeatherForecastData::new(WeatherApiStrategy).get_forecast(address, date)
+        }
         _ => WeatherForecastData::new(WeatherApiStrategy).get_forecast(address, date),
     };
 
@@ -31,7 +34,7 @@ pub fn weather_forecast(address: &str, date: &str) {
 }
 
 pub trait ForecastStrategy {
-    fn build_request(&self, address: &str, date: &str) -> Result<&str, &'static str>;
+    fn build_request(&self, address: &str, date: &str) -> Result<String, &'static str>;
 
     fn build_response(&self, request_result: &str) -> Result<ForecastResponseData, &'static str>;
 }
@@ -45,19 +48,24 @@ impl<T: ForecastStrategy> WeatherForecastData<T> {
         Self { forecast_strategy }
     }
 
-    fn get_forecast(&self, address: &str, date: &str) -> Result<ForecastResponseData, &'static str> {
+    fn get_forecast(
+        &self,
+        address: &str,
+        date: &str,
+    ) -> Result<ForecastResponseData, &'static str> {
         let results = match self.forecast_strategy.build_request(address, date) {
-            Ok(query) => match self.request(query) {
+            Ok(query) => match self.request(&query) {
                 Ok(result) => result,
-                Err(err) => return Err(err)
+                Err(err) => return Err(err),
             },
-            Err(error) => return Err(error)
+            Err(error) => return Err(error),
         };
-        self.forecast_strategy.build_response(results)
+        self.forecast_strategy.build_response(&results)
     }
 
-    fn request(&self, query: &str) -> Result<&str, &'static str> {
-        Ok("some response")
+    fn request(&self, query: &str) -> Result<String, &'static str> {
+        let response = "some response for query ".to_string() + query;
+        Ok(response)
     }
 }
 pub struct ForecastResponseData {

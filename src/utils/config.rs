@@ -1,5 +1,5 @@
-use serde::{Serialize, Deserialize};
-use crate::services::weather_service::{WeatherService};
+use crate::services::weather_service::WeatherService;
+use serde::{Deserialize, Serialize};
 
 pub fn set_provider(provider: &Option<String>) {
     let hint = "Please use: openweather, weatherapi, accuweather or aerisweather.";
@@ -17,12 +17,12 @@ pub fn get_provider() -> WeatherService {
     let config: Result<WeatherCliConfig, confy::ConfyError> = confy::load("weather-cli", None);
     match config {
         Ok(config) => WeatherService::from(Some(config.provider)),
-        Err(_) => WeatherService::OpenWeather
+        Err(_) => WeatherService::OpenWeather,
     }
 }
 
 #[derive(Serialize, Deserialize)]
-struct WeatherCliConfig{
+struct WeatherCliConfig {
     provider: String,
 }
 
@@ -63,9 +63,15 @@ fn maybe_provider_to_string(provider: &Option<WeatherService>) -> Option<String>
 fn write_config(provider: WeatherService) {
     match maybe_provider_to_string(&Some(provider)) {
         Some(provider_str) => {
-            match confy::store("weather-cli", None, WeatherCliConfig { provider: provider_str }) {
+            match confy::store(
+                "weather-cli",
+                None,
+                WeatherCliConfig {
+                    provider: provider_str,
+                },
+            ) {
                 Err(err) => print!("Can't save config: {err}"),
-                Ok(_) => println!("Config updated")
+                Ok(_) => println!("Config updated"),
             }
         }
         None => println!("not write"),
