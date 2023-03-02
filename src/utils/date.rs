@@ -41,6 +41,12 @@ fn cut_date(date_str: &str) -> Option<String> {
     }
 }
 
+impl ToString for DateOption {
+    fn to_string(&self) -> String {
+        self.date.format("%Y-%m-%d").to_string()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use chrono::{Duration, NaiveDate};
@@ -70,8 +76,17 @@ mod tests {
         assert_date_option(DateOption::new(&date_param), date, days_in_future);
     }
 
+    #[test]
+    fn date_for_7_days_in_future() {
+        let days_in_future = 7;
+        let date = date_from_now(days_in_future);
+        let date_param = date_option_string(date);
+        println!("");
+        assert_date_option(DateOption::new(&date_param), date, days_in_future);
+    }
+
     fn date_option_string(date: NaiveDate) -> String {
-        let date_string = date.format("%Y-%m-%d").to_string();
+        let date_string = date.to_string();
         format!("date={date_string}")
     }
 

@@ -36,7 +36,10 @@ pub fn weather_forecast(address: &str, date: &str) {
 pub trait ForecastStrategy {
     fn build_request(&self, address: &str, date: &str) -> Result<String, &'static str>;
 
-    fn build_response(&self, request_result: &str) -> Result<ForecastResponseData, &'static str>;
+    fn build_response(
+        &self,
+        response: reqwest::blocking::Response,
+    ) -> Result<ForecastResponseData, &'static str>;
 }
 
 struct WeatherForecastData<T: ForecastStrategy> {
@@ -54,26 +57,46 @@ impl<T: ForecastStrategy> WeatherForecastData<T> {
         date: &str,
     ) -> Result<ForecastResponseData, &'static str> {
         let results = match self.forecast_strategy.build_request(address, date) {
-            Ok(query) => match self.request(&query) {
-                Ok(result) => result,
-                Err(err) => return Err(err),
+            Ok(query) => match reqwest::blocking::get(query) {
+                Ok(response) => self.forecast_strategy.build_response(response),
+                Err(_) => Err("Can't retrieve weather data"),
             },
-            Err(error) => return Err(error),
+            Err(_) => Err("Can't create request"),
         };
-        self.forecast_strategy.build_response(&results)
-    }
-
-    fn request(&self, query: &str) -> Result<String, &'static str> {
-        let response = "some response for query ".to_string() + query;
-        Ok(response)
+        results
     }
 }
+
 pub struct ForecastResponseData {
-    pub data: String,
+    pub location: String,
+    pub date: String,
+    pub max_temp: f32,
+    pub min_temp: f32,
+    pub avg_temp: f32,
+    pub maxwind_kph: f32,
+    pub avghumidity: f32,
+    pub condition: String,
 }
 
 impl ForecastResponseData {
     fn render(&self) {
-        println!("RES: {:?}", self.data);
+        println!(
+            "== Weather forecast for {} on date {} ==",
+            self.location, self.date
+        );
+        if !self.condition.is_empty() {
+            let cond_emoji = match self.condition.to_lowercase().as_str() {
+                "sunny" => "☀️",
+                "overcast" => "🌥️",
+                _ => "",
+            };
+            println!("Is is {} {}", self.condition, cond_emoji);
+        }
+        println!(
+            "🌡️  Average temperature {}°C (Min {}°C and Max {}°C)",
+            self.avg_temp, self.min_temp, self.max_temp
+        );
+        println!("💧  Average humidity {}", self.avghumidity);
+        println!("💨  Wind max speed {} Km/h", self.maxwind_kph);
     }
 }

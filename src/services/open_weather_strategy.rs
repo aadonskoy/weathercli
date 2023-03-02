@@ -9,10 +9,11 @@ impl ForecastStrategy for OpenWeatherStrategy {
         Ok("ok".to_string())
     }
 
-    fn build_response(&self, request_result: &str) -> Result<ForecastResponseData, &'static str> {
-        println!("Results for OpenWeather {request_result}");
-        Ok(ForecastResponseData {
-            data: "ok".to_string(),
-        })
+    fn build_response(
+        &self,
+        request_result: reqwest::blocking::Response,
+    ) -> Result<ForecastResponseData, &'static str> {
+        println!("Results for OpenWeather {request_result:?}");
+        Err("error")
     }
 }
