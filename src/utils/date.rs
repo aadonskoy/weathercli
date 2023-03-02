@@ -81,7 +81,6 @@ mod tests {
         let days_in_future = 7;
         let date = date_from_now(days_in_future);
         let date_param = date_option_string(date);
-        println!("");
         assert_date_option(DateOption::new(&date_param), date, days_in_future);
     }
 
