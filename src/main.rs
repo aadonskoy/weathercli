@@ -16,7 +16,7 @@ struct Cli {
 #[derive(Subcommand, Debug)]
 enum SubCommand {
     /// Configure app to use selected service.
-    /// Please use: openweather, weatherapi, accuweather or aerisweather")
+    /// Please use: openweather or weatherapi
     /// Ex.:
     /// weather configure openweather
     Configure { provider: Option<String> },

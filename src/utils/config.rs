@@ -32,8 +32,8 @@ impl From<Option<String>> for WeatherService {
             Some(provider) => match provider.to_lowercase().as_str() {
                 "openweather" => WeatherService::OpenWeather,
                 "weatherapi" => WeatherService::WeatherApi,
-                "accuweather" => WeatherService::AccuWeather,
-                "aerisweather" => WeatherService::AerisWeather,
+                // "accuweather" => WeatherService::AccuWeather,
+                // "aerisweather" => WeatherService::AerisWeather,
                 _ => WeatherService::UnknownService,
             },
             None => WeatherService::MissingService,
@@ -53,8 +53,8 @@ fn maybe_provider_to_string(provider: &Option<WeatherService>) -> Option<String>
     match provider {
         Some(WeatherService::OpenWeather) => Some("openweather".to_string()),
         Some(WeatherService::WeatherApi) => Some("weatherapi".to_string()),
-        Some(WeatherService::AccuWeather) => Some("accuweather".to_string()),
-        Some(WeatherService::AerisWeather) => Some("aerisweather".to_string()),
+        // Some(WeatherService::AccuWeather) => Some("accuweather".to_string()),
+        // Some(WeatherService::AerisWeather) => Some("aerisweather".to_string()),
         Some(_) => None,
         None => None,
     }

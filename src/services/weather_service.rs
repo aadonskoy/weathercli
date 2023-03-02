@@ -6,8 +6,8 @@ use crate::utils::config;
 pub enum WeatherService {
     OpenWeather,
     WeatherApi,
-    AccuWeather,
-    AerisWeather,
+    // AccuWeather,
+    // AerisWeather,
     UnknownService,
     MissingService,
 }
@@ -88,9 +88,11 @@ impl ForecastResponseData {
             let cond_emoji = match self.condition.to_lowercase().as_str() {
                 "sunny" => "☀️",
                 "overcast" => "🌥️",
+                "blizzard" | "snow" => "🌨️",
+                "clouds" => "☁️",
                 _ => "",
             };
-            println!("Is is {} {}", self.condition, cond_emoji);
+            println!("{} {}", self.condition, cond_emoji);
         }
         println!(
             "🌡️  Average temperature {}°C (Min {}°C and Max {}°C)",
