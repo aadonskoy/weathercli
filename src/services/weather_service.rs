@@ -89,6 +89,7 @@ impl ForecastResponseData {
                 "sunny" => "☀️",
                 "overcast" => "🌥️",
                 "blizzard" | "snow" => "🌨️",
+                "patchy rain possible" => "🌦️",
                 "clouds" => "☁️",
                 _ => "",
             };

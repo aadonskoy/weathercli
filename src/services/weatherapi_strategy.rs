@@ -147,3 +147,66 @@ struct Day {
 struct Condition {
     text: String,
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::utils::date::DateOption;
+    use chrono::{Duration, Local, NaiveDate};
+
+    use super::WeatherRequest;
+
+    #[test]
+    fn weather_request_for_17_days_in_past() {
+        let date = date_from_now(-17);
+        let query = query_for_date(date);
+        let sample =
+            "https://api.weatherapi.com/v1/history.json?key=some_api_key&q=test_city, UA&dt="
+                .to_string()
+                + &date.to_string();
+        assert_eq!(query, sample);
+    }
+
+    #[test]
+    fn weather_request_for_now() {
+        let date = date_from_now(0);
+        let query = query_for_date(date);
+        let sample =
+            "https://api.weatherapi.com/v1/forecast.json?key=some_api_key&q=test_city, UA&days=1";
+        assert_eq!(query, sample);
+    }
+
+    #[test]
+    fn weather_request_for_13_days_future() {
+        let date = date_from_now(13);
+        let query = query_for_date(date);
+        let sample =
+            "https://api.weatherapi.com/v1/forecast.json?key=some_api_key&q=test_city, UA&days=14";
+        assert_eq!(query, sample);
+    }
+
+    #[test]
+    fn weather_request_for_14_days_future() {
+        let date = date_from_now(14);
+        let query = query_for_date(date);
+        let sample =
+            "https://api.weatherapi.com/v1/future.json?key=some_api_key&q=test_city, UA&dt="
+                .to_string()
+                + &date.to_string();
+        assert_eq!(query, sample);
+    }
+
+    fn date_option_string(date: NaiveDate) -> String {
+        let date_string = date.to_string();
+        format!("date={date_string}")
+    }
+
+    fn date_from_now(days: i64) -> NaiveDate {
+        Local::now().date_naive() + Duration::days(days)
+    }
+
+    fn query_for_date(date: NaiveDate) -> String {
+        let date_param = date_option_string(date);
+        let date_option = DateOption::new(&date_param);
+        WeatherRequest::new("test_city, UA", date_option).query("some_api_key")
+    }
+}
