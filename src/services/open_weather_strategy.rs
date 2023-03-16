@@ -12,7 +12,7 @@ Historical data isn't available as well.
 */
 
 const API_KEY: &str = env!("OPENWEATHER_API_KEY");
-const URL: &str = "https://api.openweathermap.org/data/2.5/";
+const URL: &str = "https://api.openweathermap.org/data/2.5/forecast/daily";
 
 impl ForecastStrategy for OpenWeatherStrategy {
     fn build_request(&self, address: &str, date: &str) -> Result<String, &'static str> {
@@ -31,26 +31,23 @@ impl ForecastStrategy for OpenWeatherStrategy {
         request_result: reqwest::blocking::Response,
     ) -> Result<ForecastResponseData, &'static str> {
         match request_result.json::<WeatherApiResponse>() {
-            Ok(data) => Ok(build_forecast(data)),
+            Ok(data) => build_forecast(data),
             Err(_) => Err("Incorrect data from weather service: can't parse"),
         }
     }
 }
 
-fn build_forecast(data: WeatherApiResponse) -> ForecastResponseData {
+fn build_forecast(data: WeatherApiResponse) -> Result<ForecastResponseData, &'static str> {
     let weatherday = match data.list.last() {
         Some(weatherday) => weatherday,
-        None => {
-            println!("Error: No forecast for this day");
-            panic!("Exit...");
-        }
+        None => return Err("Error: No forecast for this day"),
     };
     let date =
         chrono::NaiveDateTime::from_timestamp_opt(weatherday.dt, 0).expect("error decoding date");
     println!("DATE: {}", weatherday.dt);
     let date_string = date.format("%Y-%m-%d").to_string();
 
-    ForecastResponseData {
+    Ok(ForecastResponseData {
         location: format!("{}, {}", data.city.name, data.city.country),
         date: date_string,
         max_temp: weatherday.temp.max,
@@ -62,7 +59,7 @@ fn build_forecast(data: WeatherApiResponse) -> ForecastResponseData {
             Some(weather) => weather.main.clone(),
             None => "".to_string(),
         },
-    }
+    })
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -112,17 +109,18 @@ impl WeatherRequest {
     }
 
     fn query(&self, api_key: &str) -> Result<String, &'static str> {
-        let date_option = "&cnt=".to_string() + &(&self.date_option.days_from_now + 1).to_string();
-
         if self.is_date_available() {
-            Ok(URL.to_string()
-                + "forecast/daily"
-                + "?q="
-                + &self.address.replace(' ', "%20")
-                + &date_option
-                + "&units=metric"
-                + "&appid="
-                + api_key)
+            match url::Url::parse(URL) {
+                Ok(mut url) => {
+                    url.query_pairs_mut()
+                        .append_pair("q", &self.address)
+                        .append_pair("cnt", &(&self.date_option.days_from_now + 1).to_string())
+                        .append_pair("units", "metric")
+                        .append_pair("appid", api_key);
+                    Ok(url.to_string())
+                }
+                Err(_) => Err("Can't build query"),
+            }
         } else {
             Err("Sorry, selected service doesn't support date in past or date in future more than 16 days from now")
         }

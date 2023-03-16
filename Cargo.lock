@@ -1296,6 +1296,7 @@ dependencies = [
  "regex",
  "reqwest",
  "serde",
+ "url",
 ]
 
 [[package]]
