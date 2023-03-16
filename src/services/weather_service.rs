@@ -12,6 +12,21 @@ pub enum WeatherService {
     MissingService,
 }
 
+impl From<Option<&str>> for WeatherService {
+    fn from(provider: Option<&str>) -> WeatherService {
+        match provider {
+            Some(provider) => match provider.to_lowercase().as_str() {
+                "openweather" => WeatherService::OpenWeather,
+                "weatherapi" => WeatherService::WeatherApi,
+                // "accuweather" => WeatherService::AccuWeather,
+                // "aerisweather" => WeatherService::AerisWeather,
+                _ => WeatherService::UnknownService,
+            },
+            None => WeatherService::MissingService,
+        }
+    }
+}
+
 fn render_forecast_data(response_data: Result<ForecastResponseData, &'static str>) {
     match response_data {
         Ok(response_data) => response_data.render(),

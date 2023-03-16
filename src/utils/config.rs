@@ -1,10 +1,10 @@
 use crate::services::weather_service::WeatherService;
 use serde::{Deserialize, Serialize};
 
-pub fn set_provider(provider: &Option<String>) {
-    let hint = "Please use: openweather, weatherapi, accuweather or aerisweather.";
+pub fn set_provider(provider: Option<&str>) {
+    let hint = "Please use: openweather, weatherapi.";
 
-    match WeatherService::from(provider.to_owned()) {
+    match WeatherService::from(provider) {
         WeatherService::MissingService => println!("No service provided. {hint}"),
         WeatherService::UnknownService => println!("Service unknown. {hint}"),
         permitted_provider => {
@@ -16,7 +16,7 @@ pub fn set_provider(provider: &Option<String>) {
 pub fn get_provider() -> WeatherService {
     let config: Result<WeatherCliConfig, confy::ConfyError> = confy::load("weather-cli", None);
     match config {
-        Ok(config) => WeatherService::from(Some(config.provider)),
+        Ok(config) => WeatherService::from(Some(config.provider.as_str())),
         Err(_) => WeatherService::OpenWeather,
     }
 }
@@ -24,21 +24,6 @@ pub fn get_provider() -> WeatherService {
 #[derive(Serialize, Deserialize)]
 struct WeatherCliConfig {
     provider: String,
-}
-
-impl From<Option<String>> for WeatherService {
-    fn from(provider: Option<String>) -> WeatherService {
-        match provider {
-            Some(provider) => match provider.to_lowercase().as_str() {
-                "openweather" => WeatherService::OpenWeather,
-                "weatherapi" => WeatherService::WeatherApi,
-                // "accuweather" => WeatherService::AccuWeather,
-                // "aerisweather" => WeatherService::AerisWeather,
-                _ => WeatherService::UnknownService,
-            },
-            None => WeatherService::MissingService,
-        }
-    }
 }
 
 impl Default for WeatherCliConfig {

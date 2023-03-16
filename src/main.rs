@@ -42,7 +42,7 @@ fn main() {
     let cli = Cli::parse();
 
     match &cli.com {
-        SubCommand::Configure { provider } => utils::config::set_provider(provider),
+        SubCommand::Configure { provider } => utils::config::set_provider(provider.as_deref()),
         SubCommand::Get(GetArgs { address, options }) => match address {
             Some(address) => weather_forecast(address, options),
             None => println!("Please set your location as 'city country code': get 'Kyiv UA'"),
